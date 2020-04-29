@@ -19,6 +19,7 @@ public class Agent implements Comparable<Agent> {
     private int number;
     private List<List<Integer>> prefList;
     private int top = -1;
+    boolean hasTop = false;
 
     public Agent(int no) {
         number = no;
@@ -44,12 +45,13 @@ public class Agent implements Comparable<Agent> {
     public int getTop() {
         return top;
     }
+    
+    public void setHasTop(boolean b) {
+        hasTop = b;
+    }
 
     public boolean hasTop() {
-        if (top >= 0) {
-            return true;
-        }
-        return false;
+        return hasTop;
     }
 
     public boolean hasSamePrefs(Agent b) {
@@ -126,6 +128,95 @@ public class Agent implements Comparable<Agent> {
         return false;
 
     }
+    
+    
+    
+    
+    
+    
+    
+    public boolean hasSamePrefs(Agent a2, boolean agentOneHasTop,boolean agentTwoHasTop) {
+        List<List<Integer>> prefListCopy = prefList;
+        List<List<Integer>> bWithoutATop = a2.getPrefList();
+        if (agentOneHasTop) {
+            for (List<Integer> tie : prefListCopy) {
+                if (tie.contains(Integer.valueOf(top))) {
+                    tie.remove(Integer.valueOf(top));
+                }
+            }
+            for (List<Integer> tie : a2.getPrefList()) {
+                if (tie.contains(Integer.valueOf(top))) {
+                    tie.remove(Integer.valueOf(top));
+                }
+            }
+            if (agentTwoHasTop) {
+
+                if (compareLists(prefListCopy, bWithoutATop)) {
+                    a2.setTop(-1);
+                    return true;
+                }
+
+                for (List<Integer> tie : prefListCopy) {
+                    if (tie.contains(Integer.valueOf(a2.getTop()))) {
+                        tie.remove(Integer.valueOf(a2.getTop()));
+                    }
+                }
+                for (List<Integer> tie : a2.getPrefList()) {
+                    if (tie.contains(Integer.valueOf(a2.getTop()))) {
+                        tie.remove(Integer.valueOf(a2.getTop()));
+                    }
+                }
+
+                if (compareLists(prefListCopy, bWithoutATop)) {
+                    return true;
+                }
+
+            } else {
+                if (compareLists(prefListCopy, bWithoutATop)) {
+                    return true;
+                }
+            }
+        } else {
+            if (a2.hasTop()) {
+
+                if (compareLists(prefListCopy, bWithoutATop)) {
+                    a2.setTop(-1);
+                    return true;
+                }
+                for (List<Integer> tie : prefListCopy) {
+                    if (tie.contains(Integer.valueOf(a2.getTop()))) {
+                        tie.remove(Integer.valueOf(a2.getTop()));
+                    }
+                }
+                for (List<Integer> tie : a2.getPrefList()) {
+                    if (tie.contains(Integer.valueOf(a2.getTop()))) {
+                        tie.remove(Integer.valueOf(a2.getTop()));
+                    }
+                }
+
+                if (compareLists(prefListCopy, bWithoutATop)) {
+                    return true;
+                }
+
+            } else {
+                if (compareLists(prefListCopy, bWithoutATop)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     public boolean compareLists(List<List<Integer>> prefList1, List<List<Integer>> prefList2) {
         

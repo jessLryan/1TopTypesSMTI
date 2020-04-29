@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -25,176 +26,87 @@ public class TypesCalculator {
         List<ArrayList<Triple>> matrix = readToMatrix(agentsBufferedReader);
         List<Agent> men = extractMen(matrix);
         List<Agent> women = extractWomen(matrix);
-        
         List<ArrayList<Agent>> partitionedMen = partitionAgents(men);
         List<ArrayList<Agent>> partitionedWomen = partitionAgents(women);
         List<Agent> menWithTop = partitionedMen.get(0);
-        System.out.println("men with top ");
         List<Agent> menWithoutTop = partitionedMen.get(1);
         List<Agent> womenWithTop = partitionedWomen.get(0);
         List<Agent> womenWithoutTop = partitionedWomen.get(1);
-        System.out.println("men without top "+menWithoutTop.size());
-        System.out.println("men with top "+menWithTop.size());
-        System.out.println("women without top "+womenWithoutTop.size());
-        System.out.println("women with top "+womenWithTop.size());
-        
-        System.out.println("number of men " + men.size());
-        System.out.println("number of women " + women.size());
-        //sort each gender by pref list (so that agents with identical pref lists 
-        //are grouped in the list)
-        womenWithoutTop.sort((o1, o2) -> o1.compareTo(o2));
-        menWithoutTop.sort((o1, o2) -> o1.compareTo(o2));
-        //group each gender into lists of agents with identical preference lists
-        List<ArrayList<Agent>> groupedMenWithoutTop = groupAgentsIdenticalPrefs(menWithoutTop);
         
         
-//        System.out.println("number of groups of men without tops "+groupedMenWithoutTop.size());
-//        for (ArrayList<Agent> type:groupedMenWithoutTop) {
-//            System.out.println("group");
-//            for (Agent a:type) {
-//                System.out.print(a.getNumber());
-//            }
-//            System.out.println();
-//        }
-//        
+        if (menWithTop.size()==0&&womenWithTop.size()==0) {
+            List<ArrayList<Agent>> groupedMen = groupAgentsIdenticalPrefs(men);
+            List<ArrayList<Agent>> groupedWomen = groupAgentsIdenticalPrefs(men);
+            List<ArrayList<Agent>> typedMen = findTypes(groupedMen, women);
+            List<ArrayList<Agent>> typedWomen = findTypes(groupedWomen, men);
+            System.out.println("types "+(typedMen.size()+typedWomen.size()));
+        }
+        else {
+            System.out.println("types "+noOfTypesNeeded(menWithTop, menWithoutTop, womenWithTop, womenWithoutTop));
+        }
         
-        List<ArrayList<Agent>> groupedWomenWithoutTop = groupAgentsIdenticalPrefs(womenWithoutTop);
-//        
-//        
-//        System.out.println("number of groups of women without tops "+groupedWomenWithoutTop.size());
-//        for (ArrayList<Agent> type:groupedWomenWithoutTop) {
-//            System.out.println("group");
-//            for (Agent a:type) {
-//                System.out.print(a.getNumber());
-//            }
-//            System.out.println();
-//        }
-//        System.out.println("finding types of men");
-        //from grouped lists, find minimum number of types needed to describe the
-        //instance by checking which agents in a group are considered equal
-        //(are in a tie) in all members of the opposite gender's pref lists
-        List<ArrayList<Agent>> typedMenWithoutTop = findTypes(groupedMenWithoutTop, women);
-//        System.out.println("number of types of men without tops "+typedMenWithoutTop.size());
-//        for (ArrayList<Agent> type:typedMenWithoutTop) {
-//            System.out.println("type");
-//            for (Agent a:type) {
-//                System.out.print(a.getNumber());
-//            }
-//            System.out.println();
-//        }
-//        
-        
-        
-//        System.out.println("finding types of women");
-        List<ArrayList<Agent>> typedWomenWithoutTop = findTypes(groupedWomenWithoutTop, men);
-//        
-//        
-//        System.out.println("number of types of women without tops "+typedWomenWithoutTop.size());
-//        for (ArrayList<Agent> type:typedWomenWithoutTop) {
-//            System.out.println("type");
-//            for (Agent a:type) {
-//                System.out.print(a.getNumber());
-//            }
-//            System.out.println();
-//        }
-        
-        List<ArrayList<Agent>> menTypes = getTypes(typedMenWithoutTop, menWithTop, women);
-        List<ArrayList<Agent>> womenTypes = getTypes(typedWomenWithoutTop, womenWithTop, men);
-//        System.out.println("number of types of men " +menTypes.size());
-//        System.out.println("number of types of women " + womenTypes.size());
-//        System.out.println("types of men");
-//        for (ArrayList<Agent> type : menTypes) {
-//            System.out.println("type");
-//            for (Agent a : type) {
-//                System.out.println(a.getNumber());
-//            }
-//        }
-//
-//        System.out.println("types of women");
-//        for (ArrayList<Agent> type : womenTypes) {
-//            System.out.println("type");
-//            for (Agent a : type) {
-//                System.out.println(a.getNumber());
-//            }
-//        }
-
     }
     
     
-    public static List<ArrayList<Pair<Agent,Integer>>> partitionsOfRemainingAgents(List<Agent> agents) {
-        List<ArrayList<Pair<Agent,Integer>>> groups = new ArrayList<>();
-        for (int i=0;i<agents.size()-1;i++) {
-            Agent a = agents.get(i);
-            Pair<Agent, Integer> currentPair = new Pair(a, a.getTop());
-
-            boolean isContainedInGroup = false;
-            for (ArrayList<Pair<Agent, Integer>> group : groups) {
-                if (group.contains(currentPair)) {
-                    isContainedInGroup = true;
-                }
-            }
-            if (!isContainedInGroup) {
-                ArrayList<Pair<Agent, Integer>> currentGroup = new ArrayList<>();
-                currentGroup.add(currentPair);
-                for (int j = 1; j < agents.size(); j++) {
-                    Agent a2 = agents.get(j);
-                    if (a.hasSamePrefs(a2, true, true)  {
-                        currentGroup.add(a2, a2.getTop());
-                    }
-                    else if (a.hasSamePrefs(a2, true, false) {
-                        currentGroup.add(new Pair(a2, -1));
-                    }
-                }
-                groups.add(currentGroup);
-            }
-                
-            currentPair = new Pair(a, -1);
+    public static int noOfTypesNeeded(List<Agent> menWithTop, List<Agent> menWithoutTop,List<Agent> womenWithTop, List<Agent> womenWithoutTop) {
+        int menN = menWithTop.size();
+        int womenN = womenWithTop.size();
+        boolean[] array = new boolean[menN+womenN];
+        int column = 0;
+        int noOfTypes = Integer.MAX_VALUE;
+        
+        
+        while (Arrays.asList(array).contains(false)) {
             
-            isContainedInGroup = false;
-            for (ArrayList<Pair<Agent, Integer>> group : groups) {
-                if (group.contains(currentPair)) {
-                    isContainedInGroup = true;
+            for (int i=0;i<menN;i++) {
+                if (array[i]==true) {
+                    menWithTop.get(i).setHasTop(true);
+                }
+                else {
+                    menWithTop.get(i).setHasTop(false);
                 }
             }
-            if (!isContainedInGroup) {
-                ArrayList<Pair<Agent, Integer>> currentGroup = new ArrayList<>();
-                currentGroup.add(currentPair);
-                for (int j = 1; j < agents.size(); j++) {
-                    Agent a2 = agents.get(j);
-                    if (a.hasSamePrefs(a2, false, true)  {
-                        currentGroup.add(a2, a2.getTop());
-                    }
-                    else if (a.hasSamePrefs(a2, false, false) {
-                        currentGroup.add(new Pair(a2, -1));
-                    }
+            for (int i=menN;i<menN+womenN;i++) {
+                if (array[i]==true) {
+                    womenWithTop.get(i).setHasTop(true);
                 }
-                groups.add(currentGroup);
+                else {
+                    womenWithTop.get(i).setHasTop(false);
+                }
             }
-
+            List<Agent> men = new ArrayList<>();
+            men.addAll(menWithoutTop);
+            men.addAll(menWithTop);
+            List<ArrayList<Agent>> groupedMen = groupAgentsIdenticalPrefs(men);
+            List<Agent> women = new ArrayList<>();
+            women.addAll(womenWithoutTop);
+            women.addAll(womenWithTop);
+            List<ArrayList<Agent>> groupedWomen = groupAgentsIdenticalPrefs(men);
+            List<ArrayList<Agent>> typedMen = findTypes(groupedMen, women);
+            List<ArrayList<Agent>> typedWomen = findTypes(groupedWomen, men);
+            int number = typedMen.size()+typedWomen.size();
+            if (number<noOfTypes) {
+                noOfTypes = number;
+                System.out.println("number "+number);
+            }
+            
+            if (array[column]==false) {
+                array[column]= true;
+                for (int i=0;i<column;i++) {
+                    array[i]=false;
+                }
+                column = 0;
+            }
+            else {
+                column++;
+            }
         }
-        return groups;
+        
+        
+        return noOfTypes;
     }
     
-    
-    public static List<ArrayList<Agent>> getTypes(List<ArrayList<Agent>> typedAgentsWithoutTop, List<Agent> agentsWithTop, List<Agent> otherGender) {
-        agents: for (Agent a:agentsWithTop) {
-            for (ArrayList<Agent> typeGroup:typedAgentsWithoutTop) {
-                Agent b = typeGroup.get(0);
-                
-                if (areAgentsConsideredIdentical(a,b, otherGender)) {
-                    System.out.println("?");
-                    if (b.hasSamePrefs(a)) {
-                        typeGroup.add(a);
-                        continue agents;
-                    }
-                }
-            }
-            ArrayList<Agent> newType = new ArrayList<>();
-            newType.add(a);
-            typedAgentsWithoutTop.add(newType);
-        }
-        return typedAgentsWithoutTop;
-    }
+ 
     
     public static List<ArrayList<Agent>> partitionAgents(List<Agent> agents) {
         List<ArrayList<Agent>> twoParts = new ArrayList<>();
